@@ -460,7 +460,7 @@ class CityPainter extends CustomPainter {
   }
 
   void drawCoin(Canvas canvas, Offset center, double depth) {
-    final radius = 7 + depth.clamp(0, 1) * 13;
+    final radius = 7 + depth.clamp(0.0, 1.0) * 13;
     final paint = Paint()..color = const Color(0xFFFFD54F);
     canvas.drawCircle(center, radius, paint);
 
