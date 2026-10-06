@@ -15,6 +15,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Verify Flutter project
+        run: |
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Commit: $GITHUB_SHA"
+          pwd
+          ls -la
+          test -f pubspec.yaml
+          test -f lib/main.dart
+          echo "Flutter project files found."
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -38,3 +48,4 @@ jobs:
         with:
           name: city-rush-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
