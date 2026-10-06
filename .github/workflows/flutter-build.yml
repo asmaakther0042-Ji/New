@@ -1,34 +1,31 @@
-name: Build City Rush APK
+name: Flutter Android Build
 
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Flutter
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.2'
           channel: stable
           cache: true
 
-      - name: Create Android project files
-        run: flutter create --platforms=android --project-name city_rush .
+      - name: Flutter doctor
+        run: flutter doctor -v
 
-      - name: Get dependencies
+      - name: Get packages
         run: flutter pub get
-
-      - name: Analyze
-        run: flutter analyze lib
 
       - name: Build APK
         run: flutter build apk --release
@@ -36,5 +33,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: city-rush-apk
+          name: city-rush-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
