@@ -22,6 +22,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int coins = 0, diamonds = 0, selected = 0;
+  final Set<int> owned = {0};
   final colors = [
     const Color(0xFF20C878), const Color(0xFF42A5F5),
     const Color(0xFFFF7043), const Color(0xFFFFC107)
@@ -88,12 +89,14 @@ class _HomeScreenState extends State<HomeScreen> {
               title: Text(names[i]),
               subtitle: Text(prices[i] == 0 ? 'Free' : prices[i].toString() + ' coins'),
               trailing: FilledButton(
-                onPressed: i == 0 || selected == i
+                onPressed: owned.contains(i)
                   ? () { setState(() => selected = i); refresh(() {}); }
                   : coins >= prices[i]
-                    ? () { setState(() { coins -= prices[i]; selected = i; }); refresh(() {}); }
+                    ? () { setState(() { coins -= prices[i]; owned.add(i); selected = i; }); refresh(() {}); }
                     : null,
-                child: Text(selected == i ? 'SELECTED' : (i == 0 ? 'USE' : 'BUY')),
+                child: Text(
+                  selected == i ? 'SELECTED' : (owned.contains(i) ? 'USE' : 'BUY'),
+                ),
               ),
             ))),
           ]),
@@ -158,6 +161,7 @@ class _GameScreenState extends State<GameScreen> {
       if (mode == GameMode.run) {
         distance += speed * 1.5; score++;
         speed = math.min(1.0, speed + .00015);
+        birdDistance = math.min(1.0, birdDistance + .0025);
         spawnClock += .04;
         if (spawnClock > math.max(.42, .86 - speed * .25)) {
           spawn();
@@ -175,6 +179,7 @@ class _GameScreenState extends State<GameScreen> {
       } else {
         parachuteTime -= .04; score += 2;
         for (final c in skyCoins) c.depth += .01;
+        checkParachuteCoins();
         skyCoins.removeWhere((c) => c.depth > 1.08 || c.taken);
         if (random.nextDouble() < .10) skyCoins.add(Coin(random.nextDouble() * .55));
         if (parachuteTime <= 0) land();
@@ -192,6 +197,16 @@ class _GameScreenState extends State<GameScreen> {
     for (final c in skyCoins) {
       if (!c.taken && c.depth > .78 && c.depth < 1.03) {
         c.taken = true; coins++; score += 20;
+      }
+    }
+  }
+
+  void checkParachuteCoins() {
+    for (final c in skyCoins) {
+      if (!c.taken && c.depth > .72 && c.depth < .92) {
+        c.taken = true;
+        coins++;
+        score += 25;
       }
     }
   }
@@ -226,6 +241,7 @@ class _GameScreenState extends State<GameScreen> {
     mode = GameMode.parachute;
     parachuteTime = 15;
     traps.clear(); skyCoins.clear();
+    for (int i = 0; i < 5; i++) skyCoins.add(Coin(-.10 * i));
     toast('🪂 Parachute! Collect sky coins.');
   }
 
@@ -307,7 +323,7 @@ class _GameScreenState extends State<GameScreen> {
         ])),
         if (mode == GameMode.parachute) Positioned(
           top: 60, left: 0, right: 0,
-          child: Center(child: _hud('🪂 ' + parachuteTime.ceil().toString() + 's')),
+          child: Center(child: _hud('🪂 ' + parachuteTime.ceil().toString() + 's  •  🪙 collect')),
         ),
       ]),
     )),
