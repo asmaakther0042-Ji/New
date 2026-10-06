@@ -17,12 +17,9 @@ jobs:
 
       - name: Verify Flutter project
         run: |
-          echo "Repository: $GITHUB_REPOSITORY"
-          echo "Commit: $GITHUB_SHA"
-          pwd
-          ls -la
           test -f pubspec.yaml
           test -f lib/main.dart
+          test -f android/settings.gradle
           echo "Flutter project files found."
 
       - name: Setup Flutter
@@ -34,6 +31,12 @@ jobs:
       - name: Flutter doctor
         run: flutter doctor -v
 
+      - name: Configure Android local.properties
+        run: |
+          mkdir -p android
+          printf "sdk.dir=%s\nflutter.sdk=%s\n" "$ANDROID_HOME" "$FLUTTER_ROOT" > android/local.properties
+          cat android/local.properties
+
       - name: Get packages
         run: flutter pub get
 
@@ -41,7 +44,7 @@ jobs:
         run: flutter analyze
 
       - name: Build release APK
-        run: flutter build apk --release
+        run: flutter build apk --release -v
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
