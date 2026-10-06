@@ -24,9 +24,6 @@ jobs:
       - name: Flutter doctor
         run: flutter doctor -v
 
-      - name: Generate/repair Flutter Android platform
-        run: flutter create --platforms=android .
-
       - name: Get packages
         run: flutter pub get
 
